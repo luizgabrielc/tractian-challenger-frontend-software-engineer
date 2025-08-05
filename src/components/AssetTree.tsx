@@ -12,6 +12,13 @@ type AssetTreeProps = {
 
 export const AssetTree = ({ tree, selectedAsset, onAssetSelect, selectedCompanyName, loading = false }: AssetTreeProps) => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [activeFilters, setActiveFilters] = useState<{
+    energy: boolean;
+    critical: boolean;
+  }>({
+    energy: false,
+    critical: false,
+  });
 
   /**
    * PERFORMANCE: Filtro memoizado da árvore de ativos
@@ -24,34 +31,91 @@ export const AssetTree = ({ tree, selectedAsset, onAssetSelect, selectedCompanyN
    * - Mantém nós pais quando filhos correspondem ao filtro
    * - Preserva a estrutura da árvore durante a filtragem
    */
+  /**
+   * PERFORMANCE: Filtros combinados memoizados
+   * 
+   * Aplica múltiplos filtros: busca por texto, sensores de energia
+   * e status crítico, mantendo a estrutura hierárquica da árvore.
+   */
   const filteredTree = useMemo(() => {
-    if (!searchTerm.trim()) {
-      return tree;
+    let filtered = tree;
+
+    // Filtro de busca por texto
+    if (searchTerm.trim()) {
+      const searchLower = searchTerm.toLowerCase();
+      
+      const filterByText = (node: TreeNode): TreeNode | null => {
+        const matchesSearch = node.name.toLowerCase().includes(searchLower);
+        
+        const filteredChildren = node.children
+          .map(filterByText)
+          .filter((child): child is TreeNode => child !== null);
+        
+        if (matchesSearch || filteredChildren.length > 0) {
+          return {
+            ...node,
+            children: filteredChildren
+          };
+        }
+        
+        return null;
+      };
+
+      filtered = filtered
+        .map(filterByText)
+        .filter((node): node is TreeNode => node !== null);
     }
 
-    const searchLower = searchTerm.toLowerCase();
-    
-    const filterNode = (node: TreeNode): TreeNode | null => {
-      const matchesSearch = node.name.toLowerCase().includes(searchLower);
-      
-      const filteredChildren = node.children
-        .map(filterNode)
-        .filter((child): child is TreeNode => child !== null);
-      
-      if (matchesSearch || filteredChildren.length > 0) {
-        return {
-          ...node,
-          children: filteredChildren
-        };
-      }
-      
-      return null;
-    };
+    // Filtro de sensores de energia
+    if (activeFilters.energy) {
+      const filterByEnergy = (node: TreeNode): TreeNode | null => {
+        const isEnergySensor = node.sensorType === "energy";
+        
+        const filteredChildren = node.children
+          .map(filterByEnergy)
+          .filter((child): child is TreeNode => child !== null);
+        
+        if (isEnergySensor || filteredChildren.length > 0) {
+          return {
+            ...node,
+            children: filteredChildren
+          };
+        }
+        
+        return null;
+      };
 
-    return tree
-      .map(filterNode)
-      .filter((node): node is TreeNode => node !== null);
-  }, [tree, searchTerm]);
+      filtered = filtered
+        .map(filterByEnergy)
+        .filter((node): node is TreeNode => node !== null);
+    }
+
+    // Filtro de status crítico
+    if (activeFilters.critical) {
+      const filterByCritical = (node: TreeNode): TreeNode | null => {
+        const isCritical = node.status === "alert";
+        
+        const filteredChildren = node.children
+          .map(filterByCritical)
+          .filter((child): child is TreeNode => child !== null);
+        
+        if (isCritical || filteredChildren.length > 0) {
+          return {
+            ...node,
+            children: filteredChildren
+          };
+        }
+        
+        return null;
+      };
+
+      filtered = filtered
+        .map(filterByCritical)
+        .filter((node): node is TreeNode => node !== null);
+    }
+
+    return filtered;
+  }, [tree, searchTerm, activeFilters]);
 
   return (
     <div className="left-panel">
@@ -70,6 +134,24 @@ export const AssetTree = ({ tree, selectedAsset, onAssetSelect, selectedCompanyN
             autoComplete="off"
             spellCheck="false"
           />
+        </div>
+        
+        <div className="filter-buttons">
+          <button
+            className={`filter-btn ${activeFilters.energy ? 'active energy' : ''}`}
+            onClick={() => setActiveFilters(prev => ({ ...prev, energy: !prev.energy }))}
+          >
+            <span className="icon">⚡</span>
+            <span>Energia</span>
+          </button>
+          
+          <button
+            className={`filter-btn ${activeFilters.critical ? 'active critical' : ''}`}
+            onClick={() => setActiveFilters(prev => ({ ...prev, critical: !prev.critical }))}
+          >
+            <span className="icon">!</span>
+            <span>Crítico</span>
+          </button>
         </div>
       </div>
       <div className="tree-container">
