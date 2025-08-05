@@ -54,6 +54,7 @@ pnpm dev
 
 ## Arquitetura
 
+```bash
 src/
 ├── components/ # Componentes React
 │ ├── AssetTree.tsx # Árvore principal
@@ -67,6 +68,7 @@ src/
 ├── utils/ # Utilitários
 │ └── buildTree.ts # Construção da árvore
 └── types/ # Definições TypeScript
+```
 
 ## Design
 
