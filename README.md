@@ -2,6 +2,32 @@
 
 Uma aplicação React moderna para visualização hierárquica de ativos industriais, desenvolvida como parte do desafio técnico da Tractian.
 
+## Demonstração em Vídeo
+
+O vídeo abaixo apresenta a aplicação abrindo os dados de cada empresa e utilizando os filtros disponíveis:
+
+[![Assista no YouTube](https://img.youtube.com/vi/gddkRDNqvH0/0.jpg)](https://youtu.be/gddkRDNqvH0)
+
+🔗 [Assista no YouTube](https://youtu.be/gddkRDNqvH0)
+
+---
+
+## Pontos que eu melhoraria com mais tempo
+
+Se eu tivesse mais tempo disponível, gostaria de implementar as seguintes melhorias no projeto:
+
+- **Tratamento completo de erros**: adicionar feedback visual para requisições com falha (como mensagens de erro em tela).
+- **Skeleton Loaders**: mostrar carregamentos esqueléticos ao invés de loaders genéricos, melhorando a experiência de usuário.
+- **Testes automatizados**: incluir testes unitários e de integração utilizando ferramentas como Vitest ou Testing Library.
+- **Responsividade total**: adaptar o layout para dispositivos móveis com maior refinamento.
+- **Aprimoramento do design**: melhorar o visual com design mais moderno e consistente.
+- **Paginação e busca**: adicionar funcionalidades de paginação e busca nos ativos e localizações.
+- **Melhor organização do código**: separar lógica de negócios e UI de forma mais granular, facilitando a escalabilidade do projeto.
+
+---
+
+
+
 ## Funcionalidades
 
 ### Core Features
